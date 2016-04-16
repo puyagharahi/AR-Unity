@@ -33,7 +33,8 @@ public class GetWindows : MonoBehaviour {
 	public static Text windowsText;
 	public Process[] processes;
 	private static ImageConverter convertdabytes = new ImageConverter();
-	public 
+    public static SortedList ListWindow = new SortedList();
+    public GameObject Window;
 	void Start ()
 	{
 		windowsText = GetComponent<Text>();
@@ -54,8 +55,8 @@ public class GetWindows : MonoBehaviour {
 		//if(!n.Equals("Start") && !n.Equals("MonoDevelop") && !n.Equals("Program Manager"))
 			windowsText.text += n+"\n";
 	}
-	
-	protected static bool EnumTheWindows(IntPtr  hWnd, IntPtr lParam) 
+    private static Texture2D wintexture = new Texture2D(2, 2);
+    protected static bool EnumTheWindows(IntPtr  hWnd, IntPtr lParam) 
 	{ 
 		int size = GetWindowTextLength(hWnd); 
 		if (size++ > 0 && IsWindowVisible(hWnd)) 
@@ -66,9 +67,26 @@ public class GetWindows : MonoBehaviour {
 			Bitmap temp = PrintWindow(hWnd);
 			byte[] data = (byte[])convertdabytes.ConvertTo(temp,typeof(byte[]));
             //System.Drawing.Image img = (System.Drawing.Image)temp;
-            Texture2D wintexture = new Texture2D(2, 2);
-            wintexture.LoadImage(data);
-            wintexture.Apply(); //wills use in list of texutres if string name not found make new and add to list
+            if(!ListWindow.ContainsKey(sb.ToString()))
+            {
+               
+                wintexture.LoadImage(data);
+                wintexture.Apply(); //wills use in list of texutres if string name not found make new and add to lis
+                ListWindow.Add(sb.ToString(), Instantiate(windowsText));
+                Texture temptext = ((GameObject)ListWindow.GetValueList()[ListWindow.IndexOfKey(sb.ToString())]).GetComponent<Renderer>().material.mainTexture;
+                temptext = wintexture;
+                Destroy(temptext);
+
+            }
+            else
+            {
+                wintexture.LoadImage(data);
+                wintexture.Apply(); //wills use in list of texutres if string name not found make new and add to li
+                Texture temptext = ((GameObject)ListWindow.GetValueList()[ListWindow.IndexOfKey(sb.ToString())]).GetComponent<Renderer>().material.mainTexture;
+                temptext = wintexture;
+                Destroy(temptext);
+               
+            }
 
         } 
 		return true; 
