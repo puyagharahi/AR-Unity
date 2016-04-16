@@ -34,7 +34,7 @@ public class GetWindows : MonoBehaviour {
 	public Process[] processes;
 	private static ImageConverter convertdabytes = new ImageConverter();
     public static SortedList ListWindow = new SortedList();
-    public GameObject Window;
+  
 	void Start ()
 	{
 		windowsText = GetComponent<Text>();
@@ -72,17 +72,18 @@ public class GetWindows : MonoBehaviour {
                
                 wintexture.LoadImage(data);
                 wintexture.Apply(); //wills use in list of texutres if string name not found make new and add to lis
-                ListWindow.Add(sb.ToString(), Instantiate(windowsText));
-                Texture temptext = ((GameObject)ListWindow.GetValueList()[ListWindow.IndexOfKey(sb.ToString())]).GetComponent<Renderer>().material.mainTexture=wintexture;
+                ListWindow.Add(sb.ToString(), Instantiate(Resources.Load("Assets/Prefabs/Window.prefab") as GameObject));
+               ((GameObject)ListWindow.GetValueList()[ListWindow.IndexOfKey(sb.ToString())]).GetComponent<Renderer>().material.mainTexture = wintexture;
                
+
 
             }
             else
             {
                 wintexture.LoadImage(data);
                 wintexture.Apply(); //wills use in list of texutres if string name not found make new and add to li
-                ((GameObject)ListWindow.GetValueList()[ListWindow.IndexOfKey(sb.ToString())]).GetComponent<Renderer>().material.mainTexture = wintexture;   
-               
+                ((GameObject)ListWindow.GetValueList()[ListWindow.IndexOfKey(sb.ToString())]).GetComponent<Renderer>().material.mainTexture = wintexture;
+
             }
 
         } 
