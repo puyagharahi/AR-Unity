@@ -64,17 +64,16 @@ public class GetWindows : MonoBehaviour {
 			GetWindowText(hWnd, sb, size); 
 			SetText(sb.ToString());
 			Bitmap temp = PrintWindow(hWnd);
-		
-			//System.Drawing.Image img = (System.Drawing.Image)temp;
-			Texture2D wintexture = new Texture2D(temp.Height,temp.Width,TextureFormat.ARGB32, false);
 			byte[] data = (byte[])convertdabytes.ConvertTo(temp,typeof(byte[]));
+            //System.Drawing.Image img = (System.Drawing.Image)temp;
+            Texture2D wintexture = new Texture2D(2, 2);
+            wintexture.LoadImage(data);
+            wintexture.Apply(); //wills use in list of texutres if string name not found make new and add to list
 
-			//wintexture.LoadRawTextureData(data);
-			//wintexture.Apply(); //wills use in list of texutres if string name not found make new and add to list
-		
-		} 
+        } 
 		return true; 
 	} 
+
 
 	[DllImport("user32.dll")]
 	public static extern bool GetWindowRect(IntPtr hWnd, out RECT lpRect);
