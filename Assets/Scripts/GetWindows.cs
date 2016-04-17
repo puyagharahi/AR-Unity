@@ -5,99 +5,119 @@ using System.Collections;
 using System.Diagnostics;
 using System.Runtime.InteropServices;
 using System.Text;
-using System.Drawing.Imaging;
 using System.Drawing;
+using System.Drawing.Imaging;
+using System.IO;
+using System.Collections.Generic;
 
-public class GetWindows : MonoBehaviour {
-	[DllImport("user32.dll")] static extern int GetForegroundWindow();
-	
-	[DllImport("user32.dll", EntryPoint="MoveWindow")]  
-	static extern int  MoveWindow (int hwnd, int x, int y,int nWidth,int nHeight,int bRepaint );
-	
-	[DllImport("user32.dll", EntryPoint="SetWindowLongA")]  
-	static extern int  SetWindowLong (int hwnd, int nIndex,int dwNewLong);
-	
-	[DllImport("user32.dll")]
-	static extern bool ShowWindowAsync(int hWnd, int nCmdShow);
-	
-	protected delegate bool EnumWindowsProc(IntPtr hWnd, IntPtr lParam); 
-	[DllImport("user32.dll", CharSet = CharSet.Unicode)] 
-	protected static extern int GetWindowText(IntPtr hWnd, StringBuilder strText, int maxCount); 
-	[DllImport("user32.dll", CharSet = CharSet.Unicode)] 
-	protected static extern int GetWindowTextLength(IntPtr hWnd); 
-	[DllImport("user32.dll")] 
-	protected static extern bool EnumWindows(EnumWindowsProc enumProc, IntPtr lParam); 
-	[DllImport("user32.dll")] 
-	protected static extern bool IsWindowVisible(IntPtr hWnd);
+public class GetWindows : MonoBehaviour
+{
+    [DllImport("User32.dll")]
+    public static extern int SelectObject(int hdc, int hgdiobj);
+    [DllImport("User32.dll")]
+    public static extern int GetDesktopWindow();
+    [DllImport("User32.dll")]
+    public static extern int GetWindowDC(int hWnd);
+    [DllImport("User32.dll")]
+    public static extern int ReleaseDC(int hWnd, int hDC);
 
-	public static Text windowsText;
-	public Process[] processes;
-	private static ImageConverter convertdabytes = new ImageConverter();
-    public static SortedList ListWindow = new SortedList();
-  
-	void Start ()
-	{
-		windowsText = GetComponent<Text>();
-		windowsText.text = "";
-		EnumWindows(new EnumWindowsProc(EnumTheWindows), IntPtr.Zero); 
-	}
-	
-	
-	void Update ()
-	{
-        windowsText.text = "";
-		EnumWindows(new EnumWindowsProc(EnumTheWindows), IntPtr.Zero); 
-	}
-	
-	
-	static void SetText(string n)
-	{	
-		//if(!n.Equals("Start") && !n.Equals("MonoDevelop") && !n.Equals("Program Manager"))
-			windowsText.text += n+"\n";
-	}
-    private static Texture2D wintexture = new Texture2D(2, 2);
-    protected static bool EnumTheWindows(IntPtr  hWnd, IntPtr lParam) 
-	{ 
-		int size = GetWindowTextLength(hWnd); 
-		if (size++ > 0 && IsWindowVisible(hWnd)) 
-		{
-			StringBuilder sb = new StringBuilder(size); 
-			GetWindowText(hWnd, sb, size); 
-			SetText(sb.ToString());
-			Bitmap temp = PrintWindow(hWnd);
-//			byte[] data = (byte[])convertdabytes.ConvertTo(temp,typeof(byte[]));
-            //System.Drawing.Image img = (System.Drawing.Image)temp;
-//            wintexture.LoadImage(data);
-            wintexture.Apply(); //wills use in list of textures if string name not found make new and add to lis
-            if (!ListWindow.ContainsKey(sb.ToString()))
-            {
-                ListWindow.Add(sb.ToString(), Instantiate(Resources.Load("Window") as GameObject));
-            }
-               ((GameObject)ListWindow.GetValueList()[ListWindow.IndexOfKey(sb.ToString())]).GetComponent<Renderer>().material.mainTexture = wintexture;
-        }
-        return true; 
-	} 
+    [DllImport("user32.dll")] static extern int GetForegroundWindow();
 
+    [DllImport("user32.dll", EntryPoint = "MoveWindow")]
+    static extern int MoveWindow(int hwnd, int x, int y, int nWidth, int nHeight, int bRepaint);
 
-	[DllImport("user32.dll")]
-	public static extern bool GetWindowRect(IntPtr hWnd, out RECT lpRect);
-	[DllImport("user32.dll")]
-	public static extern bool PrintWindow(IntPtr hWnd, IntPtr hdcBlt, int nFlags);
+    [DllImport("user32.dll", EntryPoint = "SetWindowLongA")]
+    static extern int SetWindowLong(int hwnd, int nIndex, int dwNewLong);
 
-    public static Bitmap PrintWindow(IntPtr hwnd)
+    [DllImport("user32.dll")]
+    static extern bool ShowWindowAsync(int hWnd, int nCmdShow);
+
+    protected delegate bool EnumWindowsProc(IntPtr hWnd, IntPtr lParam);
+    [DllImport("user32.dll", CharSet = CharSet.Unicode)]
+    protected static extern int GetWindowText(IntPtr hWnd, StringBuilder strText, int maxCount);
+    [DllImport("user32.dll", CharSet = CharSet.Unicode)]
+    protected static extern int GetWindowTextLength(IntPtr hWnd);
+    [DllImport("user32.dll")]
+    protected static extern bool EnumWindows(EnumWindowsProc enumProc, IntPtr lParam);
+    [DllImport("user32.dll")]
+    protected static extern bool IsWindowVisible(IntPtr hWnd);
+
+    public static Text windowsText;
+    public Process[] processes;
+    private static ImageConverter convertdabytes = new ImageConverter();
+    public static SortedList<String, GameObject> ListWindow = new SortedList<string, GameObject>();
+
+    void Start()
     {
-        RECT rect = new Rectangle();
-        GetWindowRect(hwnd, out rect);
-
-        var bmp = new Bitmap(rect.Width, rect.Height);
-        System.Drawing.Graphics memoryGraphics = System.Drawing.Graphics.FromImage(bmp);
-        IntPtr dc = memoryGraphics.GetHdc();
-        PrintWindow(hwnd, dc, 0);
-        memoryGraphics.ReleaseHdc(dc);
-        return bmp;
+        windowsText = GetComponent<Text>();
+        windowsText.text = "";
+        EnumWindows(new EnumWindowsProc(EnumTheWindows), IntPtr.Zero);
     }
 
-	[StructLayout(LayoutKind.Sequential)]
+
+    void Update()
+    {
+        windowsText.text = "";
+        EnumWindows(new EnumWindowsProc(EnumTheWindows), IntPtr.Zero);
+    }
+
+
+    static void SetText(string n)
+    {
+        //if(!n.Equals("Start") && !n.Equals("MonoDevelop") && !n.Equals("Program Manager"))
+        windowsText.text += n + "\n";
+    }
+    private static Texture2D wintexture = new Texture2D(2, 2);
+    protected static bool EnumTheWindows(IntPtr hWnd, IntPtr lParam)
+    {
+        int size = GetWindowTextLength(hWnd);
+        if (size++ > 0 && IsWindowVisible(hWnd))
+        {
+            StringBuilder sb = new StringBuilder(size);
+            GetWindowText(hWnd, sb, size);
+            SetText(sb.ToString());
+            if (!ListWindow.ContainsKey(sb.ToString()))
+            {
+                GameObject fuckYou = Instantiate(Resources.Load("Window")) as GameObject;
+                Texture2D temp = PrintWindow(hWnd);
+                if (temp == null) return true;
+                UnityEngine.Debug.Log(temp);
+                fuckYou.GetComponent<Renderer>().sharedMaterial.mainTexture = temp;
+                ListWindow.Add(sb.ToString(), fuckYou);
+            }
+        }
+        return true;
+    }
+
+
+    [DllImport("user32.dll")]
+    public static extern bool GetWindowRect(IntPtr hWnd, out RECT lpRect);
+    [DllImport("user32.dll")]
+    public static extern bool PrintWindow(IntPtr hWnd, IntPtr hdcBlt, int nFlags);
+
+    public static Texture2D PrintWindow(IntPtr hwnd)
+    {
+        RECT rc;
+        GetWindowRect(hwnd, out rc);
+        if (rc == null || rc.Width == 0) return null;
+        
+        Texture2D tex = new Texture2D(rc.Width, rc.Height, TextureFormat.RGB24, false);
+        UnityEngine.Debug.Log(rc);
+        Bitmap target = new Bitmap(rc.Width, rc.Height);
+        UnityEngine.Debug.Log('B');
+        using (System.Drawing.Graphics g = System.Drawing.Graphics.FromImage(target))
+        {
+            g.CopyFromScreen(new Point(rc.Left, rc.Top), Point.Empty, rc.Size);
+        }
+        MemoryStream ms = new MemoryStream();
+        target.Save(ms, ImageFormat.Png);
+        ms.Seek(0, SeekOrigin.Begin);
+
+        tex.LoadImage(ms.ToArray());
+        return tex;
+    }
+
+    [StructLayout(LayoutKind.Sequential)]
 	public struct RECT
 	{
 		private int _Left;
