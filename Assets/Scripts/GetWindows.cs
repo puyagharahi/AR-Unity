@@ -60,7 +60,7 @@ public class GetWindows : MonoBehaviour {
 	{ 
 		int size = GetWindowTextLength(hWnd); 
 		if (size++ > 0 && IsWindowVisible(hWnd)) 
-		{ 
+		{
 			StringBuilder sb = new StringBuilder(size); 
 			GetWindowText(hWnd, sb, size); 
 			SetText(sb.ToString());
@@ -73,7 +73,7 @@ public class GetWindows : MonoBehaviour {
             {
                 ListWindow.Add(sb.ToString(), Instantiate(Resources.Load("Window") as GameObject));
             }
-//               ((GameObject)ListWindow.GetValueList()[ListWindow.IndexOfKey(sb.ToString())]).GetComponent<Renderer>().material.mainTexture = wintexture;
+               ((GameObject)ListWindow.GetValueList()[ListWindow.IndexOfKey(sb.ToString())]).GetComponent<Renderer>().material.mainTexture = wintexture;
         }
         return true; 
 	} 
@@ -83,23 +83,19 @@ public class GetWindows : MonoBehaviour {
 	public static extern bool GetWindowRect(IntPtr hWnd, out RECT lpRect);
 	[DllImport("user32.dll")]
 	public static extern bool PrintWindow(IntPtr hWnd, IntPtr hdcBlt, int nFlags);
-	
-	public static Bitmap PrintWindow(IntPtr hwnd)    
-	{       
-		RECT rc;        
-		GetWindowRect(hwnd, out rc);
-		
-		Bitmap bmp = new Bitmap(rc.Width, rc.Height, PixelFormat.Format32bppArgb);        
-		System.Drawing.Graphics gfxBmp = System.Drawing.Graphics.FromImage(bmp);        
-		IntPtr hdcBitmap = gfxBmp.GetHdc();        
-		
-		PrintWindow(hwnd, hdcBitmap, 0);  
-		
-		gfxBmp.ReleaseHdc(hdcBitmap);               
-		gfxBmp.Dispose(); 
-		
-		return bmp;   
-	}
+
+    public static Bitmap PrintWindow(IntPtr hwnd)
+    {
+        RECT rect = new Rectangle();
+        GetWindowRect(hwnd, out rect);
+
+        var bmp = new Bitmap(rect.Width, rect.Height);
+        System.Drawing.Graphics memoryGraphics = System.Drawing.Graphics.FromImage(bmp);
+        IntPtr dc = memoryGraphics.GetHdc();
+        PrintWindow(hwnd, dc, 0);
+        memoryGraphics.ReleaseHdc(dc);
+        return bmp;
+    }
 
 	[StructLayout(LayoutKind.Sequential)]
 	public struct RECT
