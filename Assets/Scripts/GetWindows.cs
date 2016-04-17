@@ -44,9 +44,9 @@ public class GetWindows : MonoBehaviour {
 	
 	
 	void Update ()
-	{	windowsText.text = "";
+	{
+        windowsText.text = "";
 		EnumWindows(new EnumWindowsProc(EnumTheWindows), IntPtr.Zero); 
-
 	}
 	
 	
@@ -65,29 +65,17 @@ public class GetWindows : MonoBehaviour {
 			GetWindowText(hWnd, sb, size); 
 			SetText(sb.ToString());
 			Bitmap temp = PrintWindow(hWnd);
-			byte[] data = (byte[])convertdabytes.ConvertTo(temp,typeof(byte[]));
+//			byte[] data = (byte[])convertdabytes.ConvertTo(temp,typeof(byte[]));
             //System.Drawing.Image img = (System.Drawing.Image)temp;
-            if(!ListWindow.ContainsKey(sb.ToString()))
+//            wintexture.LoadImage(data);
+            wintexture.Apply(); //wills use in list of textures if string name not found make new and add to lis
+            if (!ListWindow.ContainsKey(sb.ToString()))
             {
-               
-                wintexture.LoadImage(data);
-                wintexture.Apply(); //wills use in list of texutres if string name not found make new and add to lis
-                ListWindow.Add(sb.ToString(), Instantiate(Resources.Load("Assets/Prefabs/Window.prefab") as GameObject));
-               ((GameObject)ListWindow.GetValueList()[ListWindow.IndexOfKey(sb.ToString())]).GetComponent<Renderer>().material.mainTexture = wintexture;
-               
-
-
+                ListWindow.Add(sb.ToString(), Instantiate(Resources.Load("Window") as GameObject));
             }
-            else
-            {
-                wintexture.LoadImage(data);
-                wintexture.Apply(); //wills use in list of texutres if string name not found make new and add to li
-                ((GameObject)ListWindow.GetValueList()[ListWindow.IndexOfKey(sb.ToString())]).GetComponent<Renderer>().material.mainTexture = wintexture;
-
-            }
-
-        } 
-		return true; 
+//               ((GameObject)ListWindow.GetValueList()[ListWindow.IndexOfKey(sb.ToString())]).GetComponent<Renderer>().material.mainTexture = wintexture;
+        }
+        return true; 
 	} 
 
 
