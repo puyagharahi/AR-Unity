@@ -76,7 +76,7 @@ public class GetWindows : MonoBehaviour
         EnumWindows(new EnumWindowsProc(EnumTheWindows), IntPtr.Zero);
     }
 
-
+    
     public void OnPostRender()
     {
         foreach (var g in ListWindow)
@@ -86,7 +86,6 @@ public class GetWindows : MonoBehaviour
             var comp = o.GetComponent<Renderer>();
             var material = comp.material;
             var temp = material.mainTexture;
-            UnityEngine.Debug.Log(temp == null);
             UnityEngine.Graphics.DrawTexture(
                 new Rect(0, 0, temp.width, temp.height),
                 temp, material);
@@ -110,6 +109,8 @@ public class GetWindows : MonoBehaviour
             GetWindowText(hWnd, sb, size);
             SetText(sb.ToString());
             
+            if (sb.ToString().Equals("Windows Shell Experience Host") || sb.ToString().Equals("Program Manager")) return true;
+
             if (!ListWindow.ContainsKey(sb.ToString()))
             {
                 Texture2D temp = PrintWindow(hWnd);
@@ -126,9 +127,9 @@ public class GetWindows : MonoBehaviour
                 vv.x = temp.width / 200f;
                 vv.z = temp.height / 200f;
                 fuckYou.transform.localScale = vv;
-                    ListWindow.Add(sb.ToString(), fuckYou);
-                //                GUI.DrawTexture(new Rect(0, 0, temp.width, temp.height), temp, ScaleMode.ScaleToFit, true);
-                //                Destroy(temp);
+                ListWindow.Add(sb.ToString(), fuckYou);
+                //GUI.DrawTexture(new Rect(0, 0, temp.width, temp.height), temp, ScaleMode.ScaleToFit, true);
+                //Destroy(temp);
             }
         }
         return true;
@@ -145,11 +146,11 @@ public class GetWindows : MonoBehaviour
         RECT rc;
         GetWindowRect(hwnd, out rc);
         if (rc == null || rc.Width == 0) return null;
-            SetForegroundWindow(hwnd);
             MoveWindow(hwnd, 0, 0, rc.Width, rc.Height, true);
-            Thread.Sleep(100);
-            Texture2D tex = new Texture2D(rc.Width, rc.Height, TextureFormat.RGB24, true);
-            Bitmap target = new Bitmap(rc.Width, rc.Height, PixelFormat.Format32bppArgb);
+        SetForegroundWindow(hwnd);
+        Thread.Sleep(100);
+        Texture2D tex = new Texture2D(rc.Width, rc.Height, TextureFormat.RGB24, true);
+        Bitmap target = new Bitmap(rc.Width, rc.Height, PixelFormat.Format32bppArgb);
         using (System.Drawing.Graphics g = System.Drawing.Graphics.FromImage(target))
         {
             g.CopyFromScreen(new Point(rc.Left, rc.Top), Point.Empty, rc.Size);
