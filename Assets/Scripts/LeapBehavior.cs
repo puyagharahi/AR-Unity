@@ -21,6 +21,6 @@ public class LeapBehavior : MonoBehaviour
 
     void Update()
     {
-       
+      
     }
 }
