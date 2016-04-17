@@ -76,14 +76,21 @@ public class GetWindows : MonoBehaviour
             StringBuilder sb = new StringBuilder(size);
             GetWindowText(hWnd, sb, size);
             SetText(sb.ToString());
+
             if (!ListWindow.ContainsKey(sb.ToString()))
             {
-                GameObject fuckYou = Instantiate(Resources.Load("Window")) as GameObject;
                 Texture2D temp = PrintWindow(hWnd);
                 if (temp == null) return true;
-                UnityEngine.Debug.Log(temp);
+                GameObject fuckYou = Instantiate(Resources.Load("Window")) as GameObject;
                 fuckYou.GetComponent<Renderer>().sharedMaterial.mainTexture = temp;
+                System.Random random = new System.Random();
+                int randomNumber = random.Next(0, 100);
+                Vector3 vec = new Vector3(randomNumber, 0, 0);
+                fuckYou.transform.position += vec;
                 ListWindow.Add(sb.ToString(), fuckYou);
+                Destroy(temp);
+            } else {
+//                (ListWindow.Values[ListWindow.IndexOfKey(sb.ToString())]).GetComponent<Renderer>().sharedMaterial.mainTexture = temp;
             }
         }
         return true;
