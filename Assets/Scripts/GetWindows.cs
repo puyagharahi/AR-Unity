@@ -73,8 +73,9 @@ public class GetWindows : MonoBehaviour {
                 wintexture.LoadImage(data);
                 wintexture.Apply(); //wills use in list of texutres if string name not found make new and add to lis
                 ListWindow.Add(sb.ToString(), Instantiate(windowsText));
-                Texture temptext = ((GameObject)ListWindow.GetValueList()[ListWindow.IndexOfKey(sb.ToString())]).GetComponent<Renderer>().material.mainTexture=wintexture;
-               
+                ((GameObject)ListWindow.GetValueList()[ListWindow.IndexOfKey(sb.ToString())]).GetComponent<Renderer>().material.mainTexture = wintexture;
+
+
 
             }
             else

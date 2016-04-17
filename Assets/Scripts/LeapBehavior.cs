@@ -3,27 +3,24 @@ using System.Collections.Generic;
 using Leap;
 using Leap.Unity;
 
+
 public class LeapBehavior : MonoBehaviour
 {
-    LeapProvider provider;
+    Controller LeapController;
+    Frame frame;
 
     void Start()
     {
-        provider = FindObjectOfType<LeapProvider>() as LeapProvider;
+        LeapController = new Controller();
+        while (!LeapController.IsConnected)
+        {
+            Debug.Log("Attempting to connect Leap Motion");
+        }
+        Debug.Log("Successfully connected!");
     }
 
     void Update()
     {
-        Frame frame = provider.CurrentFrame;
-        foreach (Hand hand in frame.Hands)
-        {
-            if (hand.IsLeft)
-            {
-                transform.position = hand.PalmPosition.ToVector3() +
-                                     hand.PalmNormal.ToVector3() *
-                                    (transform.localScale.y * .5f + .02f);
-                transform.rotation = hand.Basis.Rotation();
-            }
-        }
+       
     }
 }
